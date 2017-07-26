@@ -22,12 +22,21 @@ http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/mu
         <munit:assert-true message="FAILED:  Expected payload's type to be Java Map, but found #[payload.getClass().getName()] instead!!" condition="#[payload is java.util.Map]" doc:name="Assert True: Payload's type is Java Map"/>
         <munit:assert-on-equals message="FAILED: Expected payload to contian TWO key/values pairs, but found #[payload.size()] instead!!!" expectedValue="#[2]" actualValue="#[payload.size()]" doc:name="Assert Equals: Payload has TWO key/value pairs"/>
     </munit:test>
-    <munit:test name="processOrders_internationsFeedsContainsWorldWideOrders_TRUE" description="Calling processorders flow returns payload contains worldwide orders when key is international">
+    <munit:test name="processOrders_internationsKeyFeedsContainsWorldWideOrders_TRUE" description="Calling processorders flow returns payload contains worldwide orders when key is international">
         <munit:set payload="#[[{'orderID':444, 'location':'worldwide','price':44.04}, {'orderID':555, 'location':'worldwide','price':55.05}, {'orderID':333, 'location':'national','price':33.03}]]" doc:name="Set Message: Set Payload to International and Domestic Orders"/>
         <flow-ref name="processOrders" doc:name="processOrders"/>
         <munit:assert-true message="FAILED: international key has NO rows" condition="#[payload.'international'.size() &gt; 0]" doc:name="Assert True: international key has some rows"/>
         <foreach collection="#[payload.'international']" doc:name="For Each: Row in International key, loop...">
             <munit:assert-on-equals message="FAILED&quot; Expected location to be worldwide, but found #[payload.'location'] instead at row-#[flowVars.counter]" expectedValue="#['worldwide']" actualValue="#[payload.'location']" doc:name="Assert Equals: Validation location = worldwide"/>
+        </foreach>
+    </munit:test>
+    
+     <munit:test name="processOrders_DomesticKeyFeedsContainsDomesticOrders_TRUE" description="Calling processorders flow returns payload contains national orders when key is domestic">
+        <munit:set payload="#[[{'orderID':444, 'location':'worldwide','price':44.04}, {'orderID':555, 'location':'worldwide','price':55.05}, {'orderID':333, 'location':'national','price':33.03}]]" doc:name="Set Message: Set Payload to International and Domestic Orders"/>
+        <flow-ref name="processOrders" doc:name="processOrders"/>
+        <munit:assert-true message="FAILED: international key has NO rows" condition="#[payload.'domestic'.size() &gt; 0]" doc:name="Assert True: domestic key has some rows"/>
+        <foreach collection="#[payload.'domestic']" doc:name="For Each: Row in domestic key, loop...">
+            <munit:assert-on-equals message="FAILED&quot; Expected location to be domestic, but found #[payload.'location'] instead at row-#[flowVars.counter]" expectedValue="#['domestic']" actualValue="#[payload.'location']" doc:name="Assert Equals: Validation location = domestic"/>
         </foreach>
     </munit:test>
 </mule>
